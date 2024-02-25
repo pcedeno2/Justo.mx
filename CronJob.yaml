@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: deployment-restart
+  namespace: <YOUR NAMESPACE>
+spec:
+  concurrencyPolicy: Forbid
+  schedule: '0 8 * * *' # especificar el tiempo de la ejecucion, here, 8 o'clock
+  jobTemplate:
+    spec:
+      backoffLimit: 2 # esto tiene muy pocas posibilidades de fallar, ya que todo se le
+                      # solicita a Kubernetes que programe un nuevo conjunto de réplicas para
+                      # el despliegue
+      activeDeadlineSeconds: 600 # tiempo de espera, tiene más sentido con 
+                                 # "waiting for rollout" con las variantes especificadas a continuación
+      template:
+        spec:
+          serviceAccountName: deployment-restart # name of the service
+                                                 # account configured above
+          restartPolicy: Never
+          containers:
+            - name: kubectl
+              image: bitnami/kubectl # probablemente cualquier imagen de kubectl sirva
+                                     # Opcionalmente especifica la versión, pero esta
+                                     # no debería ser necesario, siempre y cuando
+                                     # La versión de kubectl es lo suficientemente nueva como para
+                                     # tener el `rollout restart`
+              command:
+                - 'kubectl'
+                - 'rollout'
+                - 'restart'
+                - 'deployment/<YOUR DEPLOYMENT NAME>'
