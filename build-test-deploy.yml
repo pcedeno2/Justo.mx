@@ -1,6 +1,6 @@
 jobs:
-  eslint:
-    name: Check Syntax with ESLint
+  test_code:
+    name: Check Syntax with test_code
     runs-on: ubuntu-latest
 
     strategy:
@@ -20,12 +20,12 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Run ESLint
+      - name: Run test_code
         run: npm run lint
 
    tests:
     name: Run Tests
-    needs: eslint
+    needs: test_code
     runs-on: ubuntu-latest
 
     steps:
